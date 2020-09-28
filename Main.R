@@ -53,102 +53,16 @@ dupe_df2 <- df_merged %>%
   group_by(SITE_PID,FACILITY_UID) %>% 
   filter(n()>1)
 
-## In case, partner submission tools are duplicating linelist (df_final3 > df_final2)
+## In case, partner submission tools are duplicating linelist (df_merged > df_cleanNDR)
 df_final <- df_merged %>%
   group_by(SITE_PID, FACILITY_UID) %>%
   arrange(desc(INACTIVE_DATE), .by_group = TRUE ) %>%
   slice(1L) %>%
   ungroup()
 
-# test99 <- df_final3 %>%
-#   group_by(SITE_PID, FACILITY_UID) %>%
-#   arrange(desc(INACTIVE_DATE)) %>%
-#   slice(1L) %>%
-#   ungroup()
-
-compare_df(test,test99)
-
-## Other Duplication Tests
-test2 <- df_final3 %>% group_by(SITE_PID, IMPLEMENTING_PARTNER, STATE, FACILITY_UID) %>% summarise(n()>1) %>% filter(`n() > 1` == T)
-test3 <- df_final3 %>% group_by(SITE_PID) %>% summarise(n()>1) %>% filter(`n() > 1` == T)
-
-
-testa <- df_final2 %>%
-  group_by(SITE_PID, FACILITY_UID) %>%
-  arrange(desc(INACTIVE_DATE), .by_group = TRUE) %>%
-  slice(1L) %>%
-  ungroup()
-test2a <- df_final2 %>% group_by(SITE_PID, FACILITY_UID) %>% summarise(n()>1) %>% filter(`n() > 1` == T)
-test3a<- df_final2 %>% group_by(SITE_PID) %>% summarise(n()>1) %>% filter(`n() > 1` == T)
-
-
 ######################## 2) Generate Partner Tools ########################
 ## a) Create Partner Tools
 # (into Folder New Tools)
 generatetools(df_final)
 
-
 df_final %>% group_by(IMPLEMENTING_PARTNER,STATE)%>% summarise(n=n())
-
-
-
-df_final %>% 
-  filter(RETURN_VALIDATE == "Yes" & INACTIVE_TIME == "> 6 months") %>% 
-  group_by(SITE_PID, FACILITY_UID) %>%
-  arrange(desc(INACTIVE_DATE), .by_group = TRUE ) %>%
-  slice(1L) %>%
-  ungroup() %>% 
-  group_by(IMPLEMENTING_PARTNER,STATE) %>% 
-  summarise(n=n()) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-######################## 1) Stage 1 Determination ######################## 
-## a) Import Prev_LTFU Dataset 
-# (from Folder Continue_LTFU > Stage2)
-df <- ndr_read("./Continue_LTFU/Stage2/Continue_LTFU_stage2_2020_07_10.xlsx")
-
-## b) Archive LTFU's > 6months 
-# (into Folder Historical_LTFU > Stage1)
-stage1archive(df)
-
-## c) Export LTFU's for UMB to Update 
-# (into Folder Continue_LTFU > Stage1_ForUMBUpdate)
-stage1continue(df)
-
-## aa) Deduplication for UMB Update 
-# (into Folder Continue_LTFU > Stage1_ForUMBUpdate)
-df2 <- df %>%
-  group_by_at(vars(-NDR_PID)) %>%
-  arrange(INACTIVE_DATE) %>%
-  slice(1L) %>%
-  ungroup()
-
-dupe_df <- df %>% 
-  group_by_at(vars(-NDR_PID)) %>% 
-  filter(n()>1)
-
-write.xlsx(df2, paste("./Continue_LTFU/Stage1_ForUMBUpdate/Continue_LTFU_stage1_", date, ".xlsx", sep = ""), asTable = TRUE)
-
-## TODO: Retire Stage 1, roll >6 months criteria to Stage 2
-
-
-
