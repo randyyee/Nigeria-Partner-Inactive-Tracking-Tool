@@ -66,3 +66,36 @@ df_final <- df_merged %>%
 generatetools(df_final)
 
 df_final %>% group_by(IMPLEMENTING_PARTNER,STATE)%>% summarise(n=n())
+
+######################## 3) Aggregate Dataset ########################
+agg_dataset <- data.frame()
+
+df_ag <- df_final %>%
+  mutate_at(vars(ART_START, 
+                 INACTIVE_DATE, 
+                 LAST_DRUG_PICKUP_INACTIVE, 
+                 MOST_RECENT_DRUG_PICKUP,
+                 DIED_NDR,
+                 TRANSFERRED_NDR,
+                 REACHED_REFUSE_RETURN,
+                 REACHED_RETURN,
+                 DEAD,
+                 TRANSFERRED_OUT_NOREC), format, format = "%m-%Y") %>%
+  mutate(FINE_AGE = str_replace_all(FINE_AGE, fixed(" "), ""))
+
+for (name_col in colnames(df_ag[,12:length(df_ag)])){
+  
+  agg_dataset <- bind_rows(agg_dataset, 
+                           df_ag %>%
+                             group_by(FACILITY_NAME, FACILITY_UID, IMPLEMENTING_PARTNER, STATE, LGA, SEX, FINE_AGE) %>%
+                             filter(!is.na(get(name_col))) %>%
+                             count(get(name_col))%>%
+                             mutate(INDICATOR = eval(name_col),
+                                    `get(name_col)` = as.character(`get(name_col)`)) %>%
+                             rename(VALUE = "n",
+                                    SUBINDICATOR = "get(name_col)")
+  )
+  
+}
+
+write.xlsx(agg_dataset,"agg_dataset.xlsx")
