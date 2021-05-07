@@ -11,3 +11,7 @@ R scripts for the data management of Nigeria partner patient inactive tracking t
 5) Excel tools will be produced for each partner
 6) Open each tool and check for any issues
 7) Password protect each tool with partner's individual passphrase
+
+===
+
+Disclaimer: The findings, interpretation, and conclusions expressed herein are those of the authors and do not necessarily reflect the views of Centers for Disease Control and Prevention or the United States Government. All errors remain our own.
